@@ -1,24 +1,20 @@
-// Function to create the comment section
+import { getFromLocalStorage } from "./localStorage.js";
+
 export const createCommentSection = () => {
     const container = document.querySelector(".container");
 
-    // Create comment form and comments list
     const commentForm = createCommentForm();
     const commentsList = createCommentsList();
 
-    // Append comment form and comments list to the container
     container.appendChild(commentForm);
     container.appendChild(commentsList);
 
-    // Check if there are comments stored in localStorage
-    const storedComments = JSON.parse(localStorage.getItem('comments'));
-    if (storedComments) {
-        // Display stored comments
-        storedComments.forEach(commentText => createComment(commentText));
-    }
+    // check localStorage
+    const storedComments = getFromLocalStorage('comments');
+    resetComments();
+    if (storedComments) storedComments.forEach(comment => createComment(comment));
 };
 
-// Function to create the comments list
 const createCommentsList = () => {
     // Create comments section
     const comments = document.createElement("div");
@@ -33,7 +29,6 @@ const createCommentsList = () => {
     return comments;
 };
 
-// Function to create the comment form
 const createCommentForm = () => {
     // Create form
     const commentForm = document.createElement("form");
@@ -44,14 +39,12 @@ const createCommentForm = () => {
     commentForm.style.justifyContent = "center";
     commentForm.style.alignItems = "center";
 
-    // Add comment input and submit button to the form
     commentForm.appendChild(createCommentInput());
     commentForm.appendChild(createCommentSubmitBtn());
 
     return commentForm;
 };
 
-// Function to create the comment input
 const createCommentInput = () => {
     // Create comment input
     const userCommentContainer = document.createElement("div");
@@ -74,7 +67,6 @@ const createCommentInput = () => {
     return userCommentContainer;
 };
 
-// Function to create the comment submit button
 const createCommentSubmitBtn = () => {
     // Create submit button
     const submitBtn = document.createElement("input");
@@ -87,21 +79,14 @@ const createCommentSubmitBtn = () => {
     return submitBtn;
 };
 
-// Function to handle comment submission
 const submitComment = e => {
     e.preventDefault();
     const commentInput = document.querySelector('#user-comment');
     const commentText = commentInput.value;
-    
-    // Save comment to localStorage
-    saveCommentToLocalStorage(commentText);
-
-    // Create and display the comment
     createComment(commentText);
     commentInput.value = "";
 }
 
-// Function to create and display a comment
 const createComment = (commentText) => {
     const newCommentContainer = document.createElement('div');
     newCommentContainer.style.display = "flex";
@@ -110,11 +95,14 @@ const createComment = (commentText) => {
     const newComment = document.createElement("p");
     newComment.innerText = commentText;
 
+    saveCommentToLocalStorage(commentText);
+
     const deleteButton = document.createElement('button');
     deleteButton.className = "delete-button";
     deleteButton.style.marginLeft = "15px";
     deleteButton.innerText = 'Delete';
     deleteButton.addEventListener('click', e => {
+        deleteCommentFromLocalStorage(commentText);
         // Remove comment from HTML DOM
         newCommentContainer.remove();
     });
@@ -125,19 +113,18 @@ const createComment = (commentText) => {
     comments.appendChild(newCommentContainer);
 };
 
-// Function to save comment to localStorage
 const saveCommentToLocalStorage = (commentText) => {
-    // Get existing comments from localStorage
-    const storedComments = JSON.parse(localStorage.getItem('comments')) || [];
-
-    // Add the new comment to the array
+    const storedComments = getFromLocalStorage('comments') || [];
     storedComments.push(commentText);
-
-    // Save the updated array back to localStorage
     localStorage.setItem('comments', JSON.stringify(storedComments));
-};
+}
 
-// Function to reset comments and localStorage
+const deleteCommentFromLocalStorage = (commentText) => {
+    const storedComments = JSON.parse(localStorage.getItem('comments'));
+    const filtered = storedComments.filter(comment => comment !== commentText);
+    localStorage.setItem('comments', JSON.stringify(filtered));
+}
+
 export const resetComments = () => {
     const comments = document.querySelector(".comments");
     Array.from(comments.children).forEach(child => child.remove());
