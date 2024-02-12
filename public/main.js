@@ -1,5 +1,6 @@
 import { resetScore } from './score.js';
 import { resetComments } from './comments.js';
+import { getFromLocalStorage } from './localStorage.js';
 
 export const createMainContent = () => {
     // Create h1
@@ -18,7 +19,11 @@ export const createMainContent = () => {
     container.append(newKittenBtn);
     container.appendChild(img);
 
-    fetchImage();
+    if (getFromLocalStorage('image')) {
+        img.src = getFromLocalStorage('image');
+    } else {
+        fetchImage();
+    }
 };
 
 const fetchImage = async () => {
@@ -37,6 +42,7 @@ const fetchImage = async () => {
             resetScore();
             resetComments();
         });
+        localStorage.setItem('image', kittenImg.src);
     } catch (e) {
         console.log("Failed to fetch image", e);
     }

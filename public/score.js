@@ -1,3 +1,5 @@
+import { getFromLocalStorage } from "./localStorage.js";
+
 export const createScoreContainer = () => {
     // Create score container
     const scoreContainer = document.createElement("div");
@@ -27,7 +29,7 @@ const createScoreDisplay = () => {
 
     const score = document.createElement("span");
     score.className = "score";
-    score.innerText = "0";
+    score.innerText = getFromLocalStorage('score') || "0";
 
     scoreDisplay.appendChild(scoreTitle);
     scoreDisplay.appendChild(score);
@@ -65,14 +67,16 @@ const vote = e => {
     } else {
         newScore = parseInt(newScore) - 1;
     }
-    
+
     // update score
+    localStorage.setItem('score', newScore);
     updateScore(newScore);
 };
 
 export const resetScore = () => {
     // reset score to 0
     updateScore(0);
+    localStorage.removeItem('score');
 };
 
 const updateScore = (newScore) => {
